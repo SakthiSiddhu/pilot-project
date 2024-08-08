@@ -33,6 +33,7 @@ public class AssessmentService {
 
     @Transactional
     public Assessment createAssessment(AssessmentRequest assessmentRequest) {
+
         Assessment assessment = new Assessment();
         assessment.setSetName(assessmentRequest.getSetName());
         assessment.setDomain(assessmentRequest.getDomain());
@@ -56,6 +57,7 @@ public class AssessmentService {
         assessment.setQuestions(questions);
         Assessment savedAssessment = assessmentRepository.save(assessment);
 
+
         return savedAssessment;
     }
 
@@ -78,17 +80,17 @@ public class AssessmentService {
     }
 
     @Transactional
-    public void updateQuestion(long setid, Long questionId, AnswerRequest answerReq ){
+    public String updateQuestion(long setid, Long questionId, AnswerRequest answerReq ){
         Assessment assessment = assessmentRepository.findById(setid).orElse(null);
         if (assessment == null) {
-            throw new ResourceNotFoundException("Assessment not found");
+            return "assessment not found";
         }
 
         Question questionToUpdate = assessment.getQuestions().stream()
                 .filter(q -> q.getQuestionId().equals(questionId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-
+                .findFirst().orElse(null);
+        if(questionToUpdate==null) return "question not found";
+;
         // Update question text if provided
 
 
@@ -107,6 +109,7 @@ public class AssessmentService {
         }
 
         questionRepository.save(questionToUpdate);
+        return "Question updated Successfully";
     }
 
 //    @Transactional
@@ -127,9 +130,9 @@ public class AssessmentService {
 //    }
 
     @Transactional
-    public Map<String, String> deleteQuestion(String setName, Long questionId) {
+    public Map<String, String> deleteQuestion(long setid, Long questionId) {
         Map<String, String> response = new HashMap<>();
-        Assessment assessment = assessmentRepository.findBySetName(setName).orElse(null);
+        Assessment assessment = assessmentRepository.findById(setid).orElse(null);
         if (assessment == null) {
 //            throw new ResourceNotFoundException("Assessment not found");
             response.put("message", "Assessment not found");
