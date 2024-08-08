@@ -8,4 +8,11 @@ import java.util.List;
 @Data
 public class QuestionResponse {
     private List<Question> questions;
+
+    @Override
+    public String toString() {
+        return "QuestionResponse{" +
+                "questions=" + questions +
+                '}';
+    }
 }

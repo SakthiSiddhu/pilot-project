@@ -1,6 +1,7 @@
 package com.example.AssessmentService.controller;
 
 import com.example.AssessmentService.dto.AssessmentDTO;
+import com.example.AssessmentService.exception.ResourceNotFoundException;
 import com.example.AssessmentService.model.Assessment;
 import com.example.AssessmentService.dto.*;
 import com.example.AssessmentService.service.AssessmentService;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,19 +36,19 @@ public class AssessmentController {
     }
 
     @GetMapping("/{setName}")
-    public ResponseEntity<QuestionResponse> getQuestionsBySetName(@PathVariable("setName") String setName) {
+    public ResponseEntity<?> getQuestionsBySetName(@PathVariable("setName") String setName) {
        QuestionResponse questionResponse = assessmentService.getQuestionsSetName(setName);
         if (questionResponse == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok("Set not found");
         }
         return ResponseEntity.ok(questionResponse);
     }
 
-    @PutMapping("/{setName}/question/{questionId}")
-    public ResponseEntity<Void> updateQuestion(@PathVariable("setName") String setName,
+    @PutMapping("/{setid}/question/{questionId}")
+    public ResponseEntity<Void> updateQuestion(@PathVariable("setid") long setid,
                                                @PathVariable("questionId") Long questionId,
                                                @RequestBody AnswerRequest answers) {
-        assessmentService.updateQuestion(setName, questionId,answers);
+        assessmentService.updateQuestion(setid, questionId,answers);
         return ResponseEntity.ok().build();
     }
 
@@ -64,5 +66,11 @@ public class AssessmentController {
                                                               @PathVariable("questionId") Long questionId) {
         Map<String, String> response = assessmentService.deleteQuestion(setName, questionId);
         return ResponseEntity.ok(response);
+    }
+
+    @ExceptionHandler(ResourceAccessException.class)
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> handleSetNotFoundException(ResourceNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.OK);
     }
 }

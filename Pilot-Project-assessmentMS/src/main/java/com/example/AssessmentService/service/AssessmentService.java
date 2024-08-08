@@ -67,9 +67,9 @@ public class AssessmentService {
     }
 
     public AssessmentResponse getAssessmentBySetName(String setName) {
-        Assessment assessment = assessmentRepository.findBySetName(setName);
+        Assessment assessment = assessmentRepository.findBySetName(setName).orElse(null);
         if (assessment == null) {
-            return null;
+            throw new ResourceNotFoundException("Assessment not found");
         }
         AssessmentResponse response = new AssessmentResponse();
         response.setAssessment(mapToAssessmentDTO(assessment));
@@ -78,8 +78,8 @@ public class AssessmentService {
     }
 
     @Transactional
-    public void updateQuestion(String setName, Long questionId, AnswerRequest answerReq ){
-        Assessment assessment = assessmentRepository.findBySetName(setName);
+    public void updateQuestion(long setid, Long questionId, AnswerRequest answerReq ){
+        Assessment assessment = assessmentRepository.findById(setid).orElse(null);
         if (assessment == null) {
             throw new ResourceNotFoundException("Assessment not found");
         }
@@ -129,7 +129,7 @@ public class AssessmentService {
     @Transactional
     public Map<String, String> deleteQuestion(String setName, Long questionId) {
         Map<String, String> response = new HashMap<>();
-        Assessment assessment = assessmentRepository.findBySetName(setName);
+        Assessment assessment = assessmentRepository.findBySetName(setName).orElse(null);
         if (assessment == null) {
 //            throw new ResourceNotFoundException("Assessment not found");
             response.put("message", "Assessment not found");
@@ -164,12 +164,14 @@ public class AssessmentService {
     }
 
     public QuestionResponse getQuestionsSetName(String setName) {
-        Assessment assessment = assessmentRepository.findBySetName(setName);
-        if (assessment == null) {
+        Assessment assessment = assessmentRepository.findBySetName(setName).orElse(null);
+        if (assessment == null)
             return null;
-        }
+
         QuestionResponse response = new QuestionResponse();
         response.setQuestions(assessment.getQuestions());
+
+
         return response;
     }
 }

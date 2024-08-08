@@ -24,6 +24,20 @@ public class Assessment {
     @Column(name = "created_by")
     private String createdBy;
 
+    @Override
+    public String toString() {
+        return "Assessment{" +
+                "setid=" + setid +
+                ", setName='" + setName + '\'' +
+                ", domain='" + domain + '\'' +
+                ", createdBy='" + createdBy + '\'' +
+                ", createdDate='" + createdDate + '\'' +
+                ", modifiedDate='" + modifiedDate + '\'' +
+                ", status=" + status +
+                ", questions=" + questions +
+                '}';
+    }
+
     private String createdDate;
 
     private String modifiedDate;
